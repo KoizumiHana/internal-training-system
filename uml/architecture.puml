@@ -1,0 +1,46 @@
+@startuml
+!theme toy
+
+cloud "private network" as pw {
+    node "security service" as ss
+    node "training service" as trs
+    node "file service" as fs
+    node "test service" as ts
+    node "notification service" as ns
+    node "gateway api" as gapi
+
+    database "security DB" as sdb
+    database "training DB" as trdb
+    database "test DB" as tdb
+
+    queue "kafka" as kf
+    storage "localstack S3" as s3
+}
+component "service discovery" as sd
+component "ELK" as elk
+component "grafana" as gf
+
+pw --> gapi
+
+gapi <-> ss
+gapi <-> trs
+gapi <-> ts
+
+ss - sdb
+trs - trdb
+ts - tdb
+
+ss <-> fs
+trs <-> fs
+ts <----> fs
+
+s3 <-> fs
+
+ts ---> kf
+trs ---> kf
+kf <-- ns
+
+elk - pw
+sd - pw
+gf - pw
+@enduml
