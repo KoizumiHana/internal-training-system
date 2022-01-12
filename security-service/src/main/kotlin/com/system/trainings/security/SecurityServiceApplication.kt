@@ -1,4 +1,4 @@
-package com.system.trainings.securityservice
+package com.system.trainings.security
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
