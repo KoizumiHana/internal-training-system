@@ -1,5 +1,8 @@
 spring:
   application:
     name: training
+  liquibase:
+    change-log: db/changelog/changelog-master.xml
+    enabled: true
 server:
   port: 8082
