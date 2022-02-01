@@ -1,0 +1,127 @@
+version: '3.8'
+services:
+  training-service:
+    container_name: training-service
+    image: its/training
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://training-db:5432/training
+      SPRING_DATASOURCE_USERNAME: training-admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQL10Dialect
+    depends_on:
+      storage-service:
+        condition: service_healthy
+      training-db:
+        condition: service_healthy
+    ports:
+      - '8082:8080'
+    healthcheck:
+      test: [ "CMD","curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    expose:
+      - '8082'
+    networks:
+      - backend
+      - storage
+
+  storage-service:
+    container_name: storage-service
+    image: its/file-storage
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://storage-db:5432/storage
+      SPRING_DATASOURCE_USERNAME: storage-admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQL10Dialect
+      CLOUD_AWS_S3_ENDPOINT: http://localstack:4566
+    depends_on:
+      storage-db:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    ports:
+      - '8081:8080'
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+      - storage
+
+  training-db:
+    container_name: training-db
+    image: postgres:10
+    restart: always
+    environment:
+      POSTGRES_DB: training
+      POSTGRES_USER: training-admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - '5432:5432'
+    expose:
+      - '5432'
+    healthcheck:
+      test: [ "CMD","/usr/bin/pg_isready" ]
+      timeout: 20s
+      interval: 10s
+      retries: 5
+    volumes:
+      - training-db:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  storage-db:
+    container_name: storage-db
+    image: postgres:10
+    restart: always
+    environment:
+      POSTGRES_DB: storage
+      POSTGRES_USER: storage-admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - '5433:5432'
+    expose:
+      - '5433'
+    healthcheck:
+      test: [ "CMD","/usr/bin/pg_isready" ]
+      timeout: 20s
+      interval: 10s
+      retries: 5
+    volumes:
+      - storage-db:/var/lib/postgresql/data
+    networks:
+      - storage
+
+  localstack:
+    container_name: local-s3
+    image: localstack/localstack
+    network_mode: bridge
+    ports:
+      - "127.0.0.1:4510-4530:4510-4530"
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:4571:4571"
+    environment:
+      - SERVICES=s3
+      - DEBUG=0
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    healthcheck:
+      test: [ "CMD", "awslocal", "s3","ls" ]
+      timeout: 30s
+      interval: 10s
+      retries: 5
+    volumes:
+      - localstack-storage:/tmp/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - storage
+volumes:
+  localstack-storage:
+  training-db:
+  storage-db:
+networks:
+  backend:
+  storage:
