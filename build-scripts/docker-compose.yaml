@@ -8,6 +8,8 @@ services:
       SPRING_DATASOURCE_USERNAME: training-admin
       SPRING_DATASOURCE_PASSWORD: admin
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQL10Dialect
+      EUREKA_HOST: service-discovery
+      EUREKA_PORT: 8761
     depends_on:
       storage-service:
         condition: service_healthy
@@ -20,11 +22,10 @@ services:
       interval: 30s
       timeout: 5s
       retries: 5
-    expose:
-      - '8082'
     networks:
       - backend
       - storage
+      - eureka
 
   storage-service:
     container_name: storage-service
@@ -35,6 +36,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: admin
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQL10Dialect
       CLOUD_AWS_S3_ENDPOINT: http://localstack:4566
+      EUREKA_HOST: service-discovery
+      EUREKA_PORT: 8761
     depends_on:
       storage-db:
         condition: service_healthy
@@ -50,6 +53,17 @@ services:
     networks:
       - backend
       - storage
+      - eureka
+
+  service-discovery:
+    container_name: service-discovery
+    image: its/service-discovery
+    environment:
+      SERVER_PORT: 8761
+    ports:
+      - '8761:8761'
+    networks:
+      - eureka
 
   training-db:
     container_name: training-db
@@ -61,8 +75,6 @@ services:
       POSTGRES_PASSWORD: admin
     ports:
       - '5432:5432'
-    expose:
-      - '5432'
     healthcheck:
       test: [ "CMD","/usr/bin/pg_isready" ]
       timeout: 20s
@@ -83,8 +95,6 @@ services:
       POSTGRES_PASSWORD: admin
     ports:
       - '5433:5432'
-    expose:
-      - '5433'
     healthcheck:
       test: [ "CMD","/usr/bin/pg_isready" ]
       timeout: 20s
@@ -125,3 +135,4 @@ volumes:
 networks:
   backend:
   storage:
+  eureka:
