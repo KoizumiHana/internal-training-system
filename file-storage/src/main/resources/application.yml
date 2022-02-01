@@ -1,0 +1,22 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: storage-admin
+    password: admin
+    url: jdbc:postgresql://localhost:5433/storage
+  liquibase:
+    change-log: db/changelog/changelog-master.xml
+    enabled: true
+  application:
+    name: storage
+cloud:
+  aws:
+    credentials:
+      access-key: test
+      secret-key: test
+    s3:
+      endpoint: http://localhost:4566
+      region: Ohio
+      pathStyleAccessEnabled: True
