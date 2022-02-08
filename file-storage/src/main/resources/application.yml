@@ -11,6 +11,9 @@ spring:
     enabled: true
   application:
     name: storage
+  servlet:
+    multipart:
+      max-file-size: 10MB
 cloud:
   aws:
     credentials:

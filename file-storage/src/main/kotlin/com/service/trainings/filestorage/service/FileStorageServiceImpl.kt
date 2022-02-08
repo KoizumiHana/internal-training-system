@@ -25,16 +25,25 @@ class FileStorageServiceImpl(
             originName = originFilename,
             downloadLink = downloadLink
         )
-        fileService.save(file)
+        fileService.create(file)
         storageService.uploadObject(bucketName = resourceType, filePath = "$resourceId/$uuid", file = multipartFile)
     }
 
     override fun getListOfLinksRelatedToResource(resourceType: String, resourceId: String): List<String> =
         fileService.getAllLinksRelatedToResourceTypeByResourceId(resourceType, resourceId)
 
+    @Transactional
+    override fun deleteFileByUUID(uuid: String) {
+        val file = fileService.findByUUID(UUID.fromString(uuid))
+        file ?: return
+        storageService.deleteObject(file.resourceType, "${file.resourceId}/${file.uuid}")
+        fileService.deleteByUUID(file.uuid)
+    }
+
 
     override fun downloadFileByUUID(uuid: String): S3Object? {
-        val file = fileService.getFile(UUID.fromString(uuid))
+        val file = fileService.findByUUID(UUID.fromString(uuid))
+        file ?: return null
         val bucketName = file.resourceType
         val filePath = "${file.resourceId}/${file.uuid}"
         val s3Object = storageService.downloadByBucketNameAndFilePath(bucketName, filePath)

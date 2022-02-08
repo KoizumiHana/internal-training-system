@@ -19,8 +19,14 @@ class FileController(@Autowired val fileStorageService: FileStorageService) {
     fun getAllLinksRelatedToResource(
         @PathVariable resourceType: String,
         @PathVariable resourceId: String
-    ): List<String> {
-        return fileStorageService.getListOfLinksRelatedToResource(resourceType, resourceId)
+    ): List<String> = fileStorageService.getListOfLinksRelatedToResource(resourceType, resourceId)
+
+    @PostMapping("/{resourceType}")
+    fun getAllLinksRelatedToResources(
+        @PathVariable resourceType: String,
+        @RequestBody resourceIds: List<String>
+    ): Map<String, List<String>> = resourceIds.associateWith {
+        fileStorageService.getListOfLinksRelatedToResource(resourceType, it)
     }
 
     @GetMapping("/download/{uuid}")
@@ -42,11 +48,14 @@ class FileController(@Autowired val fileStorageService: FileStorageService) {
             .body(response)
     }
 
-    @PostMapping("/{resourceType}/{resourceId}")
+    @PostMapping("/{resourceType}/{resourceId}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun uploadFile(
         @RequestBody multipartFile: MultipartFile,
         @PathVariable resourceType: String,
         @PathVariable resourceId: String
     ) = fileStorageService.saveFile(multipartFile, resourceType, resourceId)
+
+    @DeleteMapping("/")
+    fun deleteFileByUUID(@RequestBody uuid: String) = fileStorageService.deleteFileByUUID(uuid)
 
 }
