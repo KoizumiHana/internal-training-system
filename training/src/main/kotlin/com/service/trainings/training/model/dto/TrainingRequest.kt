@@ -2,6 +2,7 @@ package com.service.trainings.training.model.dto
 
 import java.math.BigDecimal
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Positive
 import javax.validation.constraints.PositiveOrZero
 
 sealed class TrainingRequest(
@@ -21,7 +22,8 @@ class TrainingCreateRequest(
 ) : TrainingRequest(name, shortDescription, fullDescription, coach, cost)
 
 class TrainingUpdateRequest(
-    @field:PositiveOrZero val id: Long,
+    @field:Positive val id: Long,
+    val trainingImageURL: String?,
     name: String,
     shortDescription: String,
     fullDescription: String,

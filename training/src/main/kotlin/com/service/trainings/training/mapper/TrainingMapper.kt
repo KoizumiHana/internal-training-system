@@ -33,5 +33,6 @@ fun Training.toResponse() = TrainingResponse(
     fullDescription = fullDescription,
     cost = cost,
     coach = coach,
-    lessons = lessons.map(Lesson::toResponse)
+    lessons = lessons.map(Lesson::toResponse),
+    trainingImageUrl = null
 )
