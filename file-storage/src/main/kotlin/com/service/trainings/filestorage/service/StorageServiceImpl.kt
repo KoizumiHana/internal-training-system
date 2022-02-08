@@ -24,6 +24,10 @@ class StorageServiceImpl(@Autowired val s3Client: AmazonS3) : StorageService {
         s3Client.putObject("/$bucketName", filePath, file.inputStream, meta)
     }
 
+    override fun deleteObject(bucketName: String, key: String) {
+        s3Client.deleteObject("/$bucketName", key)
+    }
+
     override fun getAllByBucketName(bucketName: String): ObjectListing? = s3Client.listObjects("$bucketName/")
 
     override fun downloadByBucketNameAndFilePath(bucketName: String, filePath: String): S3Object? {

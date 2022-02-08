@@ -8,15 +8,16 @@ import com.service.trainings.training.model.dto.TrainingUpdateRequest
 import com.service.trainings.training.model.entity.Training
 import com.service.trainings.training.repository.TrainingRepository
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import javax.persistence.EntityNotFoundException
 
 @Service
 class TrainingServiceImpl(@Autowired private val trainingRepository: TrainingRepository) : TrainingService {
 
-    override fun create(trainingCreateRequest: TrainingCreateRequest) {
+    override fun create(trainingCreateRequest: TrainingCreateRequest): Training {
         val trainingEntity = trainingCreateRequest.toEntity()
-        trainingRepository.save(trainingEntity)
+        return trainingRepository.save(trainingEntity)
     }
 
     override fun findById(trainingId: Long) = findEntityById(trainingId).toResponse()
@@ -27,9 +28,12 @@ class TrainingServiceImpl(@Autowired private val trainingRepository: TrainingRep
 
     override fun findAll(): List<TrainingResponse> = trainingRepository.findAll().map(Training::toResponse)
 
-    override fun update(trainingUpdateRequest: TrainingUpdateRequest) {
-        TODO("Not yet implemented")
-    }
+    override fun findAll(pageable: Pageable): List<TrainingResponse> =
+        trainingRepository.findAll(pageable).map(Training::toResponse).toList()
+
+    override fun update(trainingUpdateRequest: TrainingUpdateRequest) =
+        trainingRepository.save(trainingUpdateRequest.toEntity())
+
 
     override fun deleteById(trainingId: Long) {
         trainingRepository.deleteById(trainingId)

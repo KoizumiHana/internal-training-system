@@ -9,5 +9,6 @@ data class TrainingResponse(
     val fullDescription: String,
     val coach: String,
     val cost: BigDecimal,
-    val lessons: List<LessonResponse>
+    val lessons: List<LessonResponse>,
+    var trainingImageUrl: String?
 )

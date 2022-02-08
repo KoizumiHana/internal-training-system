@@ -10,4 +10,5 @@ interface StorageService {
     fun getAllByBucketName(bucketName: String): ObjectListing?
     fun downloadByBucketNameAndFilePath(bucketName: String, filePath: String): S3Object?
     fun uploadObject(bucketName: String, filePath: String, file: MultipartFile)
+    fun deleteObject(bucketName: String, key: String)
 }

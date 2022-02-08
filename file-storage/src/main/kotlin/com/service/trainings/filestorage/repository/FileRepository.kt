@@ -9,7 +9,8 @@ import java.util.*
 @Repository
 interface FileRepository : JpaRepository<File, Long> {
 
-    fun findByUuid(uuid: UUID): File
+    fun findByUuid(uuid: UUID): File?
+    fun deleteByUuid(uuid: UUID)
 
     @Query("select f.downloadLink from File f where f.resourceType = ?1 and f.resourceId = ?2")
     fun findAllDownloadLinksByResourceTypeAndResourceId(resourceType: String, resourceId: String): List<String>

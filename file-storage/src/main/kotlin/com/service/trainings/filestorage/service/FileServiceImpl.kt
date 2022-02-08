@@ -9,11 +9,15 @@ import java.util.*
 @Service
 class FileServiceImpl(@Autowired val fileRepository: FileRepository) : FileService {
 
-    override fun save(file: File) {
+    override fun create(file: File) {
         fileRepository.save(file)
     }
 
-    override fun getFile(uuid: UUID) = fileRepository.findByUuid(uuid)
+    override fun findByUUID(uuid: UUID): File? {
+        return fileRepository.findByUuid(uuid)
+    }
+
+    override fun deleteByUUID(uuid: UUID): Unit = fileRepository.deleteByUuid(uuid)
 
     override fun getAllLinksRelatedToResourceTypeByResourceId(resourceType: String, resourceId: String): List<String> =
         fileRepository.findAllDownloadLinksByResourceTypeAndResourceId(resourceType, resourceId)
